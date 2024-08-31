@@ -15,9 +15,10 @@ kotlin {
             resources.srcDir("src/main/resources")
         }
     }
+
 }
 
-tasks.register<JavaCompile>("generateKotlinCodeAndroid") {
+tasks.register<JavaCompile>("GenerateKColor") {
     group = "kotlin"
     description = "Generate colors for android"
     source = fileTree("src/main/kotlin")
@@ -49,19 +50,14 @@ apply<KColorPlugin>()
 
 publishing {
     publications {
-        create<MavenPublication>("pluginMaven") {
+        create<MavenPublication>("release") {
             groupId = "com.github.mohitsoni48"
-            artifactId = "kcolor-plugin"
-            version = "1.0.0"
+            artifactId = "KColor"
+            version = "1.0.0.alpha1"
 
 //            afterEvaluate {
-//                from(components["java"])
+//                from(components["KColor"])
 //            }
-        }
-    }
-    repositories {
-        maven {
-            url = uri("file://${layout.buildDirectory}/repo")
         }
     }
 }
