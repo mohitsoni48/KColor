@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.google.devtools.ksp)
 }
 
 kotlin {
@@ -25,9 +26,11 @@ kotlin {
         }
     }
 
+//    jvm {
+//    }
+
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":KColor"))
             implementation(compose.ui)
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -49,4 +52,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+}
+
+dependencies {
+    add("kspCommonMainMetadata", project(":KColor"))
+//    add("kspJvm", project(":KColor"))
+//    add("kspJvmTest", project(":KColor"))
+//    ksp(project(":KColor"))
 }

@@ -1,51 +1,30 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
 }
+
+group = "com.example"
+version = "1.0-SNAPSHOT"
 
 kotlin {
-    androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
-    }
-    
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
-            baseName = "KColor"
-            isStatic = true
-        }
-    }
+    jvm()
 
     sourceSets {
-        commonMain.dependencies {
-            implementation(compose.ui)
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.components.resources)
-        }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
+        val jvmMain by getting {
+            dependencies {
+                implementation("com.squareup:javapoet:1.13.0")
+                implementation(libs.symbol.processing)
+            }
+            kotlin.srcDir("src/main/kotlin")
+            resources.srcDir("src/main/resources")
         }
     }
 }
 
-android {
-    namespace = "com.mohitsoni.kcolor"
-    compileSdk = 34
-    defaultConfig {
-        minSdk = 28
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
+tasks.register<JavaCompile>("generateKotlinCodeAndroid") {
+    group = "kotlin"
+    description = "Generate Kotlin code with KSP for Android"
+    source = fileTree("src/main/kotlin")
+    classpath = configurations.kotlinCompilerClasspath.get()
+    destinationDirectory = file("androidApp/build/generated/ksp/android/androidMain/kotlin")
+    // Add other necessary configurations
 }
