@@ -5,15 +5,15 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSNode
-import com.google.devtools.ksp.visitor.KSTopDownVisitor
 import org.w3c.dom.Document
 import java.io.File
-import java.io.OutputStreamWriter
 import javax.xml.parsers.DocumentBuilderFactory
 
-class TestProcessor(private val environment: SymbolProcessorEnvironment, val codeGenerator: CodeGenerator, val logger: KSPLogger) : SymbolProcessor {
+class KColorProcessor(
+    private val environment: SymbolProcessorEnvironment,
+    val codeGenerator: CodeGenerator,
+    val logger: KSPLogger
+) : SymbolProcessor {
     private var invoked = false
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -24,32 +24,30 @@ class TestProcessor(private val environment: SymbolProcessorEnvironment, val cod
             return emptyList()
         }
         invoked = true
-        invoked = true
 
+        val packageName = environment.options["packageName"]
 
-        // Specify the path to the XML file
-        val projectRoot = resolver.getAllFiles().find { it.filePath.contains("/shared/") }!!.filePath.split("/shared/").first()
-        val relativePath = "shared/src/commonMain/resources/colors/colors.xml"
+        if (packageName == null) {
+            logger.error("packageName not added in ksp arguments")
+            throw NotImplementedError("packageName not added in ksp arguments")
+        }
 
-        // Construct the full path
+        val sharedModuleName = environment.options["sharedModuleName"] ?: "shared"
+        val projectRoot = resolver.getAllFiles().find { it.filePath.contains("/$sharedModuleName/") }!!.filePath.split("/$sharedModuleName/").first()
+        val relativePath = "$sharedModuleName/src/commonMain/resources/colors/colors.xml"
+
         val xmlFilePath = "$projectRoot/$relativePath"
 
-        // Read the XML file (assuming it exists)
         val xmlFile = File(xmlFilePath)
         if (!xmlFile.exists()) {
             logger.error("colors.xml not found at $xmlFilePath")
             return emptyList()
         }
 
-        // Example: Extract package name from any KSClassDeclaration
-        val packageName = "com.mohitsoni.kcolorsample"
-        logger.warn("###KSP###: Package name: $packageName")
-        // Define the output file
         val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         val doc: Document = docBuilder.parse(xmlFile)
         val resources = doc.documentElement
 
-        // Prepare the content for the generated Kotlin file
         val stringNodes = resources.getElementsByTagName("color")
         val colorDeclarations = mutableListOf<String>()
 
@@ -62,7 +60,6 @@ class TestProcessor(private val environment: SymbolProcessorEnvironment, val cod
             colorDeclarations.add("val $variableName = Color($value)")
         }
 
-        // Generate the content for generatedcolors.kt
         val generatedContent = """
             |package $packageName
             |
@@ -71,8 +68,7 @@ class TestProcessor(private val environment: SymbolProcessorEnvironment, val cod
             |${colorDeclarations.joinToString("\n")}
             |""".trimMargin()
 
-        // Define the output file
-        val outputFilePath = "$projectRoot/shared/src/commonMain/kotlin/${packageName.replace('.', '/')}/generatedcolors.kt"
+        val outputFilePath = "$projectRoot/$sharedModuleName/build/generated/colors/generatedcolors.kt"
         val outputFile = File(outputFilePath)
         outputFile.parentFile.mkdirs()
         outputFile.writeText(generatedContent)
@@ -88,8 +84,8 @@ class TestProcessor(private val environment: SymbolProcessorEnvironment, val cod
 
 }
 
-class TestProcessorProvider : SymbolProcessorProvider {
+class KColorProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-        return TestProcessor(environment, environment.codeGenerator, environment.logger)
+        return KColorProcessor(environment, environment.codeGenerator, environment.logger)
     }
 }

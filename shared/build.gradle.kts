@@ -26,8 +26,9 @@ kotlin {
         }
     }
 
-//    jvm {
-//    }
+    sourceSets.commonMain {
+        kotlin.srcDir("build/generated/colors")
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -53,10 +54,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
+ksp {
+    arg("packageName", "com.mohitsoni.kcolorsample")
+    arg("sharedModuleName", "shared")
+}
 
 dependencies {
     add("kspCommonMainMetadata", project(":KColor"))
-//    add("kspJvm", project(":KColor"))
-//    add("kspJvmTest", project(":KColor"))
-//    ksp(project(":KColor"))
 }
