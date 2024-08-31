@@ -6,6 +6,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import org.w3c.dom.Document
+import org.w3c.dom.NodeList
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -33,6 +34,7 @@ class KColorProcessor(
         }
 
         val sharedModuleName = environment.options["sharedModuleName"] ?: "shared"
+        val iosApp = environment.options["iosAppName"] ?: "iosApp"
         val projectRoot = resolver.getAllFiles().find { it.filePath.contains("/$sharedModuleName/") }!!.filePath.split("/$sharedModuleName/").first()
         val relativePath = "$sharedModuleName/src/commonMain/resources/colors/colors.xml"
 
@@ -49,6 +51,19 @@ class KColorProcessor(
         val resources = doc.documentElement
 
         val stringNodes = resources.getElementsByTagName("color")
+
+        generateAndroidColors(stringNodes, packageName, projectRoot, sharedModuleName)
+        generateiosColors(iosApp, stringNodes, packageName, projectRoot, sharedModuleName)
+
+        return emptyList()
+    }
+
+    private fun generateAndroidColors(
+        stringNodes: NodeList,
+        packageName: String?,
+        projectRoot: String,
+        sharedModuleName: String
+    ) {
         val colorDeclarations = mutableListOf<String>()
 
         for (i in 0 until stringNodes.length) {
@@ -61,25 +76,106 @@ class KColorProcessor(
         }
 
         val generatedContent = """
-            |package $packageName
-            |
-            |import androidx.compose.ui.graphics.Color
-            |
-            |${colorDeclarations.joinToString("\n")}
-            |""".trimMargin()
+                |package $packageName
+                |
+                |import androidx.compose.ui.graphics.Color
+                |
+                |${colorDeclarations.joinToString("\n")}
+                |""".trimMargin()
 
-        val outputFilePath = "$projectRoot/$sharedModuleName/build/generated/colors/generatedcolors.kt"
+        val outputFilePath =
+            "$projectRoot/$sharedModuleName/build/generated/colors/generatedcolors.kt"
         val outputFile = File(outputFilePath)
         outputFile.parentFile.mkdirs()
         outputFile.writeText(generatedContent)
 
         logger.info("Generated colors.kt at $outputFilePath")
+    }
 
-        return emptyList()
+    private fun generateiosColors(
+        iosApp: String,
+        stringNodes: NodeList,
+        packageName: String?,
+        projectRoot: String,
+        sharedModuleName: String
+    ) {
+
+        val outputAsset = "$projectRoot/$iosApp/$iosApp/Colors.xcassets"
+        for (i in 0 until stringNodes.length) {
+            val node = stringNodes.item(i)
+            val name = node.attributes.getNamedItem("name").nodeValue
+            val colorFolder = name.transformToCapitalCamelCase() + ".colorset/Contents.json"
+            val outputFile = File("$outputAsset/$colorFolder")
+            outputFile.parentFile.mkdirs()
+            outputFile.writeText(hexToJson(node.textContent.trim()))
+        }
+
+    }
+
+    fun hexToJson(hex: String): String {
+        // Ensure hex is in the format #RRGGBB or #AARRGGBB
+        val cleanedHex = hex.removePrefix("#")
+        val alpha = if (cleanedHex.length == 8) cleanedHex.substring(0, 2) else "FF"
+        val red = cleanedHex.substring(cleanedHex.length - 6, cleanedHex.length - 4)
+        val green = cleanedHex.substring(cleanedHex.length - 4, cleanedHex.length - 2)
+        val blue = cleanedHex.substring(cleanedHex.length - 2, cleanedHex.length)
+
+        // Convert hex values to decimal
+        val alphaDecimal = (alpha.toInt(16) / 255.0).toString()
+        val redDecimal = Integer.parseInt(red, 16).toString()
+        val greenDecimal = Integer.parseInt(green, 16).toString()
+        val blueDecimal = Integer.parseInt(blue, 16).toString()
+
+        // Construct JSON manually
+        return """
+        {
+          "colors": [
+            {
+              "color": {
+                "color-space": "srgb",
+                "components": {
+                  "alpha": "$alphaDecimal",
+                  "blue": "$blueDecimal",
+                  "green": "$greenDecimal",
+                  "red": "$redDecimal"
+                }
+              },
+              "idiom": "universal"
+            },
+            {
+              "appearances": [
+                {
+                  "appearance": "luminosity",
+                  "value": "dark"
+                }
+              ],
+              "color": {
+                "color-space": "srgb",
+                "components": {
+                  "alpha": "$alphaDecimal",
+                  "blue": "$blueDecimal",
+                  "green": "$greenDecimal",
+                  "red": "$redDecimal"
+                }
+              },
+              "idiom": "universal"
+            }
+          ],
+          "info": {
+            "author": "xcode",
+            "version": 1
+          }
+        }
+    """.trimIndent()
     }
 
     private fun String.toCamelCase(): String {
         return this.split('_').joinToString("") { it.capitalize() }.decapitalize()
+    }
+
+    fun String.transformToCapitalCamelCase(): String {
+        return this.split('_')
+            .joinToString("") { it.capitalize() }
     }
 
 }

@@ -12,6 +12,6 @@ class Greeting {
         val string = runBlocking {
             getString(Res.string.title)
         }
-        return "Hellog, ${platform.name}!"
+        return "Hello, ${platform.name}!"
     }
 }
