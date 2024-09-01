@@ -53,7 +53,7 @@ class KColorProcessor(
         val stringNodes = resources.getElementsByTagName("color")
 
         generateAndroidColors(stringNodes, packageName, projectRoot, sharedModuleName)
-        generateiosColors(iosApp, stringNodes, packageName, projectRoot, sharedModuleName)
+        generateiosColors(iosApp, stringNodes, projectRoot)
 
         return emptyList()
     }
@@ -95,16 +95,14 @@ class KColorProcessor(
     private fun generateiosColors(
         iosApp: String,
         stringNodes: NodeList,
-        packageName: String?,
         projectRoot: String,
-        sharedModuleName: String
     ) {
 
         val outputAsset = "$projectRoot/$iosApp/$iosApp/Colors.xcassets"
         for (i in 0 until stringNodes.length) {
             val node = stringNodes.item(i)
             val name = node.attributes.getNamedItem("name").nodeValue
-            val colorFolder = name.transformToCapitalCamelCase() + ".colorset/Contents.json"
+            val colorFolder = name.toCamelCase() + ".colorset/Contents.json"
             val outputFile = File("$outputAsset/$colorFolder")
             outputFile.parentFile.mkdirs()
             outputFile.writeText(hexToJson(node.textContent.trim()))
@@ -171,11 +169,6 @@ class KColorProcessor(
 
     private fun String.toCamelCase(): String {
         return this.split('_').joinToString("") { it.capitalize() }.decapitalize()
-    }
-
-    fun String.transformToCapitalCamelCase(): String {
-        return this.split('_')
-            .joinToString("") { it.capitalize() }
     }
 
 }

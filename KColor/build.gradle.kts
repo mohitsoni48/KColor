@@ -26,8 +26,9 @@ tasks.register<JavaCompile>("GenerateKColor") {
     description = "Generate colors for android"
     source = fileTree("src/main/kotlin")
     classpath = configurations.kotlinCompilerClasspath.get()
-    destinationDirectory = file("androidApp/build/generated/ksp/android/androidMain/kotlin")
+    destinationDirectory = file("build/generated/ksp/android/androidMain/kotlin")
 }
+
 
 open class KColorExtension {
     var packageName: String? = null
@@ -56,7 +57,7 @@ mavenPublishing {
     coordinates(
         groupId = "io.github.mohitsoni48",
         artifactId = "KColor",
-        version = "1.0.0.alpha1"
+        version = "1.0.0.alpha2"
     )
 
     // Configure POM metadata for the published artifact

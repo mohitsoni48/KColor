@@ -54,9 +54,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata" ) {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+}
+
 ksp {
     arg("packageName", "com.mohitsoni.kcolorsample")
     arg("sharedModuleName", "shared")
+    arg("iosAppName", "iosApp")
 }
 
 dependencies {
