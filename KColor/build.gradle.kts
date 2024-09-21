@@ -1,25 +1,26 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
+//    alias(libs.plugins.kotlinMultiplatform)
     id("com.vanniktech.maven.publish") version "0.28.0"
-
+    `kotlin-dsl`
+    `java-gradle-plugin`
 }
 
-kotlin {
-    jvm()
-
-    sourceSets {
-        val jvmMain by getting {
-            dependencies {
-                implementation(libs.symbol.processing)
-            }
-            kotlin.srcDir("src/main/kotlin")
-            resources.srcDir("src/main/resources")
-        }
-    }
-
-}
+//kotlin {
+//    jvm()
+//
+//    sourceSets {
+//        val jvmMain by getting {
+//            dependencies {
+//                implementation(libs.symbol.processing)
+//            }
+//            kotlin.srcDir("src/main/kotlin")
+//            resources.srcDir("src/main/resources")
+//        }
+//    }
+//
+//}
 
 tasks.register<JavaCompile>("GenerateKColor") {
     group = "kotlin"
@@ -30,34 +31,21 @@ tasks.register<JavaCompile>("GenerateKColor") {
 }
 
 
-open class KColorExtension {
-    var packageName: String? = null
-    var sharedModule: String = "shared"
-}
-
-class KColorPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
-        val extension = project.extensions.create("kColor", KColorExtension::class.java)
-
-        project.afterEvaluate {
-            val packageName = extension.packageName
-            val sharedModule = extension.sharedModule
-
-            // Use these properties as needed, e.g., pass them to your KSP processor
-            println("Package Name: $packageName")
-            println("Shared Module: $sharedModule")
+gradlePlugin {
+    plugins {
+        create("kColorPlugin") {
+            id = "com.mohitsoni.kcolor"
+            implementationClass = "com.mohitsoni.kcolor.KColorPlugin"
         }
     }
 }
-
-apply<KColorPlugin>()
 
 mavenPublishing {
     // Define coordinates for the published artifact
     coordinates(
         groupId = "io.github.mohitsoni48",
         artifactId = "KColor",
-        version = "1.0.0.alpha2"
+        version = "1.0.0.alpha3"
     )
 
     // Configure POM metadata for the published artifact
@@ -95,8 +83,3 @@ mavenPublishing {
     // Enable GPG signing for all publications
     signAllPublications()
 }
-
-//kColor {
-//    packageName = "com.aistro.magha"
-//    sharedModule = "shared"
-//}

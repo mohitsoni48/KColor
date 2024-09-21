@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
+    id("com.mohitsoni.kcolor")
 }
 
 kotlin {
@@ -55,18 +56,8 @@ android {
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
-    if (name != "kspCommonMainKotlinMetadata" ) {
-        dependsOn("kspCommonMainKotlinMetadata")
-    }
-}
-
-ksp {
-    arg("packageName", "com.mohitsoni.kcolorsample")
-    arg("sharedModuleName", "shared")
-    arg("iosAppName", "iosApp")
-}
-
-dependencies {
-    add("kspCommonMainMetadata", project(":KColor"))
+kColor {
+    packageName = "com.mohitsoni.kcolorsample"
+    sharedModule = "shared"
+    iosAppName = "iosApp"
 }
