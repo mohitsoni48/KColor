@@ -9,49 +9,11 @@ plugins {
 gradlePlugin {
     plugins {
         create("kColorPlugin") {
-            id = "io.github.mohitsoni48.kcolor"
+            id = "io.github.mohitsoni48.KColor"
             implementationClass = "com.mohitsoni.kcolor.KColorPlugin"
         }
     }
 }
-
-//publishing {
-//    publications {
-//        create<MavenPublication>("pluginMaven") {
-//            groupId = "io.github.mohitsoni48"
-//            artifactId = "KColor"
-//            version = "1.0.0.alpha3"
-//            pom {
-//                name.set("KColor")
-//                description.set("A library to share color between commonMain and ios swift")
-//                inceptionYear.set("2024")
-//                url.set("https://github.com/mohitsoni48/KColor")
-//
-//                licenses {
-//                    license {
-//                        name.set("MIT")
-//                        url.set("https://opensource.org/licenses/MIT")
-//                    }
-//                }
-//
-//                // Specify developers information
-//                developers {
-//                    developer {
-//                        id.set("mohitsoni48")
-//                        name.set("Mohit Soni")
-//                        email.set("mohitsoni48@gmail.com")
-//                    }
-//                }
-//
-//                // Specify SCM information
-//                scm {
-//                    url.set("https://github.com/mohitsoni48/KColor")
-//                }
-//            }
-//
-//        }
-//    }
-//}
 
 mavenPublishing {
     // Define coordinates for the published artifact
@@ -59,7 +21,7 @@ mavenPublishing {
     coordinates(
         groupId = "io.github.mohitsoni48",
         artifactId = "KColor",
-        version = "1.0.0.alpha3"
+        version = "1.0.0"
     )
 
     // Configure POM metadata for the published artifact

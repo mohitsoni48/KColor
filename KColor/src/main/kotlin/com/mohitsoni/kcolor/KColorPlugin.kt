@@ -14,7 +14,7 @@ class KColorPlugin : Plugin<Project> {
 
         project.afterEvaluate {
             project.tasks.register("generateColors", GenerateColorsTask::class.java).configure {
-                packageName.set(extension.packageName ?: throw NotImplementedError("packageName not added in ksp arguments"))
+                packageName.set(extension.packageName ?: throw NotImplementedError("KColor plugin not set"))
                 sharedModule.set(extension.sharedModule ?: "shared")
                 iosAppName.set(extension.iosAppName ?: "iosApp")
                 projectRoot.set(project.rootDir.absolutePath.split("/$sharedModule").first())

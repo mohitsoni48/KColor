@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
-    id("com.mohitsoni.kcolor")
+    id("io.github.mohitsoni48.KColor")
 }
 
 kotlin {
@@ -64,6 +64,6 @@ android {
 
 kColor {
     packageName = "com.mohitsoni.kcolorsample"
-    sharedModule = "shared"
-    iosAppName = "iosApp"
+    sharedModule = "shared" //optional, default is shared
+    iosAppName = "iosApp"   //optional, default is shared
 }

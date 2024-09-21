@@ -1,23 +1,17 @@
 # KColor
 
-![Maven Central](https://img.shields.io/badge/Maven_Central-1.0.0.alpha2-blue)
+![Maven Central](https://img.shields.io/badge/Maven_Central-1.0.0-blue)
 
 This is a Kotlin multiplatform library for sharing color between android and iOS.
 
 ## How to Install
 
-To add KSP (Kotlin Symbol Processing) to your project, include the following in your dependencies:
-
-```
-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-
-```
 In project level build.gradle
 
 ```
 plugins {
     //other plugins
-    alias(libs.plugins.google.devtools.ksp).apply(false)
+    id("io.github.mohitsoni48.KColor") version "<Version>" apply false
 }
 ```
 
@@ -26,7 +20,7 @@ In shared module build.gradle
 ```
 plugins {
     //other plugins
-    alias(libs.plugins.google.devtools.ksp)
+    id("io.github.mohitsoni48.KColor")
 }
 
 kotlin {
@@ -42,20 +36,10 @@ kotlin {
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
-    if (name != "kspCommonMainKotlinMetadata" ) {
-        dependsOn("kspCommonMainKotlinMetadata")
-    }
-}
-
-ksp {
-    arg("packageName", "<YOUR_PACKAGE_NAME>")
-    arg("sharedModuleName", "<YOUR_SHARED_MODULE NAME>") //optional, default is shared
-    arg("iosAppName", "<YOUR IOS APP NAME>") //optional, default is iosApp
-}
-
-dependencies {
-    add("kspCommonMainMetadata", "io.github.mohitsoni48:KColor:<Version>")
+kColor {
+    packageName = "com.mohitsoni.kcolorsample"
+    sharedModule = "shared" //optional, default is shared
+    iosAppName = "iosApp"   //optional, default is iosApp
 }
 ```
 
@@ -103,6 +87,76 @@ struct ContentView: View {
 ```
 
 All set
+
+If you want to set color from your ViewModels you can use generated KColorRes to set colors like this
+
+In shared module build.gradle
+
+```
+plugins {
+    //other plugins
+    id("io.github.mohitsoni48.KColor")
+}
+
+kotlin {
+
+    sourceSets.commonMain {
+        kotlin.srcDir("build/generated/colors")
+    }
+    sourceSets.androidMain {
+        kotlin.srcDir("build/generated/android/kcolors")
+    }
+    sourceSets.iosMain {
+        kotlin.srcDir("build/generated/ios/kcolors")
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+            //...
+        }
+    }
+}
+
+kColor {
+    packageName = "com.mohitsoni.kcolorsample"
+    sharedModule = "shared" //optional, default is shared
+    iosAppName = "iosApp"   //optional, default is iosApp
+}
+```
+
+In shared ViewModel
+
+```
+class ColorStateViewModel: ViewModel() {
+    val colorState: MutableStateFlow<KColor> = MutableStateFlow(KColorRes.primary)
+    //.....
+    fun setColor() {
+        colorState.value = KColorRes.primaryTwo
+    }
+}
+```
+
+and to use in Android and iOS you can use ```getColor()``` method which return ```Color``` from Jertpack compose in AndroidMain and ```UIColor``` in iOSMain
+
+### In Android
+```
+Text(text = text, color = getColor(colorState.value))
+```
+
+### In iOS
+Since in iOS kotlin has interop with Objective-C and not Swift, we get UIColor which you have to convert to ```Color``` in swift so you can create an extention func in swift
+
+```
+func getColor(kColor: String) -> Color {
+    return Color(GetColorKt.getColor(kColor: kColor))
+}
+```
+
+and use it like
+```
+Text(greet)
+    .foregroundColor(getColor(kColor: colorState.value))
+```
 
 See full instruction with illustrations here: https://medium.com/@mohitsoni48/kcolor-a-library-to-share-color-between-android-and-ios-in-kmm-aca162411dc2
 
