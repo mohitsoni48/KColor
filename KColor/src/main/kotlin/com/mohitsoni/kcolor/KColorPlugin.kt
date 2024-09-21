@@ -25,6 +25,9 @@ class KColorPlugin : Plugin<Project> {
                 project.tasks.named("preBuild").configure {
                     dependsOn(generateColors)
                 }
+                project.tasks.named("embedAndSignAppleFrameworkForXcode").configure {
+                    dependsOn(generateColors)
+                }
             } else {
                 project.logger.warn("generateColors task not found.")
             }
