@@ -30,6 +30,12 @@ kotlin {
     sourceSets.commonMain {
         kotlin.srcDir("build/generated/colors")
     }
+    sourceSets.androidMain {
+        kotlin.srcDir("build/generated/android/kcolors")
+    }
+    sourceSets.iosMain {
+        kotlin.srcDir("build/generated/ios/kcolors")
+    }
 
     sourceSets {
         commonMain.dependencies {
