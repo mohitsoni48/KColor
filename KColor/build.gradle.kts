@@ -21,7 +21,7 @@ mavenPublishing {
     coordinates(
         groupId = "io.github.mohitsoni48",
         artifactId = "KColor",
-        version = "1.0.0"
+        version = "1.0.2"
     )
 
     // Configure POM metadata for the published artifact

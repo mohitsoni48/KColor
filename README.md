@@ -1,6 +1,6 @@
 # KColor
 
-![Maven Central](https://img.shields.io/badge/Maven_Central-1.0.0-blue)
+![Maven Central](https://img.shields.io/badge/Maven_Central-1.0.2-blue)
 
 This is a Kotlin multiplatform library for sharing color between android and iOS.
 
@@ -56,13 +56,13 @@ In your shared module: shared>src>commonMain>resources>colors add â€œcolors.xmlâ
 ## How to use in Android
 After adding color you can run your android app or run
 ```./gradlew build```
-Verify generated colors file at shared>build>generated>colors>generatedcolors.kt
+Verify generated colors file at shared>build>generated>colors>KColor.kt
 You can then simply use this color in your composable like this
 
 ```
 @Composable
 fun GreetingView(text: String) {
-    Text(text = text, color = primaryThree)
+    Text(text = text, color = KColor.primaryThree)
 }
 ```
 
@@ -128,7 +128,7 @@ In shared ViewModel
 
 ```
 class ColorStateViewModel: ViewModel() {
-    val colorState: MutableStateFlow<KColor> = MutableStateFlow(KColorRes.primary)
+    val colorState: MutableStateFlow<KColorRes> = MutableStateFlow(KColorRes.primary)
     //.....
     fun setColor() {
         colorState.value = KColorRes.primaryTwo
@@ -147,22 +147,20 @@ Text(text = text, color = getColor(colorState.value))
 Since in iOS kotlin has interop with Objective-C and not Swift, we get UIColor which you have to convert to ```Color``` in swift so you can create an extention func in swift
 
 ```
-func getColor(kColor: String) -> Color {
-    return Color(GetColorKt.getColor(kColor: kColor))
+func getColor(kColorRes: KColorRes) -> Color {
+    return Color(GetColorKt.getColor(kColorRes: kColorRes))
 }
 ```
 
 and use it like
 ```
 Text(greet)
-    .foregroundColor(getColor(kColor: colorState.value))
+    .foregroundColor(getColor(kColorRes: colorState.value))
 ```
 
 See full instruction with illustrations here: https://medium.com/@mohitsoni48/kcolor-a-library-to-share-color-between-android-and-ios-in-kmm-aca162411dc2
 
 
-## Liked my work?
-
-Did this library make your work easy? Tipe me here
+## To support this library
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L3L612MBTA)

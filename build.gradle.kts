@@ -7,5 +7,5 @@ plugins {
     alias(libs.plugins.jetbrainsCompose).apply(false)
     alias(libs.plugins.compose.compiler).apply(false)
     alias(libs.plugins.google.devtools.ksp).apply(false)
-    id("io.github.mohitsoni48.KColor") version "1.0.0.alpha3" apply false
+    id("io.github.mohitsoni48.KColor") version "1.0.2" apply false
 }

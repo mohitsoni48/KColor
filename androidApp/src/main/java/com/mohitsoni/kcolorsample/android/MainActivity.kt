@@ -3,15 +3,18 @@ package com.mohitsoni.kcolorsample.android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.mohitsoni.kcolorsample.Greeting
+import com.mohitsoni.kcolorsample.KColor
 import com.mohitsoni.kcolorsample.KColorRes
 import com.mohitsoni.kcolorsample.getColor
-import com.mohitsoni.kcolorsample.primaryThree
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +34,11 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GreetingView(text: String) {
-    Text(text = text, color = getColor(KColorRes.primaryThree))
+    Column {
+        Text(text = text, color = getColor(KColorRes.primary))
+        Text(text = text, color = KColor.primary)
+        Text(text = text, color = KColor.primaryThree)
+    }
 }
 
 @Preview

@@ -91,11 +91,19 @@ abstract class GenerateColorsTask : org.gradle.api.DefaultTask() {
         for (i in 0 until colorNodes.length) {
             val node = colorNodes.item(i)
             val name = node.attributes.getNamedItem("name").nodeValue
-            val value = node.textContent.trim().replace("#", "0x")
+            val value = node.textContent.trim().replace("#", "").let { hex ->
+                when (hex.length) {
+                    3 -> "0xFF" + hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
+                    6 -> "0xFF$hex"
+                    8 -> "0x$hex"
+                    else -> throw IllegalArgumentException("Invalid color format")
+                }
+            }
+
             val variableName = name.toCamelCase()
 
             colorDeclarations.add("val $variableName = Color($value)")
-            colorIds.add("val ${variableName}: KColor = \"${node.textContent.trim()}\"")
+            colorIds.add("data object ${variableName}: KColorRes(\"${node.textContent.trim()}\")")
         }
 
         val generatedContent = """
@@ -103,12 +111,12 @@ abstract class GenerateColorsTask : org.gradle.api.DefaultTask() {
                 |
                 |import androidx.compose.ui.graphics.Color
                 |
-                |typealias KColor = String
-                |
-                |${colorDeclarations.joinToString("\n")}
+                |object KColor {
+                |   ${colorDeclarations.joinToString("\n   ")}
+                |}
                 |""".trimMargin()
 
-        val outputFilePath = "$projectRoot/$sharedModule/build/generated/colors/generatedColors.kt"
+        val outputFilePath = "$projectRoot/$sharedModule/build/generated/colors/KColor.kt"
         val outputFile = File(outputFilePath)
         outputFile.parentFile.mkdirs()
         outputFile.writeText(generatedContent)
@@ -116,14 +124,12 @@ abstract class GenerateColorsTask : org.gradle.api.DefaultTask() {
         val generatedIds = """
                 |package $packageName
                 |
-                |import androidx.compose.ui.graphics.Color
-                |
-                |object KColorRes {
-                |${colorIds.joinToString("\n")}
+                |sealed class KColorRes(val hex: String) {
+                |   ${colorIds.joinToString("\n   ")}
                 |}
                 |""".trimMargin()
 
-        val idFilePath = "$projectRoot/$sharedModule/build/generated/colors/generatedColorsId.kt"
+        val idFilePath = "$projectRoot/$sharedModule/build/generated/colors/KColorRes.kt"
         val idFile = File(idFilePath)
         idFile.parentFile.mkdirs()
         idFile.writeText(generatedIds)
@@ -132,11 +138,11 @@ abstract class GenerateColorsTask : org.gradle.api.DefaultTask() {
                 |package $packageName
                 |
                 |import androidx.compose.ui.graphics.Color
-                |fun getColor(kColor: KColor): Color {
-                |   return Color(android.graphics.Color.parseColor(kColor))
+                |fun getColor(kColorRes: KColorRes): Color {
+                |   return Color(android.graphics.Color.parseColor(kColorRes.hex))
                 |}
                 |""".trimMargin()
-        val androidFilePath = "$projectRoot/$sharedModule/build/generated/android/kcolors/getColor.kt"
+        val androidFilePath = "$projectRoot/$sharedModule/build/generated/android/kcolors/GetColor.kt"
         val androidFile = File(androidFilePath)
         androidFile.parentFile.mkdirs()
         androidFile.writeText(androidGetColor)
@@ -165,15 +171,15 @@ abstract class GenerateColorsTask : org.gradle.api.DefaultTask() {
                 |
                 |import platform.UIKit.UIColor
                 |
-                |fun getColor(kColor: String): UIColor {
+                |fun getColor(kColorRes: KColorRes): UIColor {
                 |   val normalizedHex = when {
-                |       kColor.length == 7 && kColor[0] == '#' -> kColor
-                |       kColor.length == 9 && kColor[0] == '#' -> kColor
-                |       kColor.length == 4 && kColor[0] == '#' -> {
-                |           "#@{kColor[1]}@{kColor[1]}@{kColor[2]}@{kColor[2]}@{kColor[3]}@{kColor[3]}"
+                |       kColorRes.hex.length == 7 && kColorRes.hex[0] == '#' -> kColorRes.hex
+                |       kColorRes.hex.length == 9 && kColorRes.hex[0] == '#' -> kColorRes.hex
+                |       kColorRes.hex.length == 4 && kColorRes.hex[0] == '#' -> {
+                |           "#@{kColorRes.hex[1]}@{kColorRes.hex[1]}@{kColorRes.hex[2]}@{kColorRes.hex[2]}@{kColorRes.hex[3]}@{kColorRes.hex[3]}"
                 |       }
-                |       kColor.length == 5 && kColor[0] == '#' -> {
-                |           "#@{kColor[1]}@{kColor[1]}@{kColor[2]}@{kColor[2]}@{kColor[3]}@{kColor[3]}"
+                |       kColorRes.hex.length == 5 && kColorRes.hex[0] == '#' -> {
+                |           "#@{kColorRes.hex[1]}@{kColorRes.hex[1]}@{kColorRes.hex[2]}@{kColorRes.hex[2]}@{kColorRes.hex[3]}@{kColorRes.hex[3]}"
                 |       }
                 |       else -> "#FFFFFF"
                 |   }
@@ -190,7 +196,7 @@ abstract class GenerateColorsTask : org.gradle.api.DefaultTask() {
                 |   return UIColor(red = red, green = green, blue = blue, alpha = alpha)
                 |}
                 """.trimMargin().replace("@", "$")
-        val iosFilePath = "$projectRoot/$sharedModule/build/generated/ios/kcolors/getColor.kt"
+        val iosFilePath = "$projectRoot/$sharedModule/build/generated/ios/kcolors/GetColor.kt"
         val iosFile = File(iosFilePath)
         iosFile.parentFile.mkdirs()
         iosFile.writeText(iosGetColor)

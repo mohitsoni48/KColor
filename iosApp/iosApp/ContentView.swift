@@ -7,7 +7,7 @@ struct ContentView: View {
 	var body: some View {
 		Text(greet)
             .foregroundColor(.primary)
-            .foregroundColor(getColor(kColor: KColorRes.shared.primary))
+            .foregroundColor(getColor(kColorRes: KColorRes.primary()))
 
 	}
 }
@@ -20,6 +20,6 @@ struct ContentView_Previews: PreviewProvider {
 
 
 
-func getColor(kColor: String) -> Color {
-    return Color(GetColorKt.getColor(kColor: kColor))
+func getColor(kColorRes: KColorRes) -> Color {
+    return Color(GetColorKt.getColor(kColorRes: kColorRes))
 }
