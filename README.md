@@ -8,7 +8,7 @@ This is a Kotlin multiplatform library for sharing color between android and iOS
 
 In project level build.gradle
 
-```
+``` groovy
 plugins {
     //other plugins
     id("io.github.mohitsoni48.KColor") version "<Version>" apply false
@@ -17,7 +17,7 @@ plugins {
 
 In shared module build.gradle
 
-```
+``` groovy
 plugins {
     //other plugins
     id("io.github.mohitsoni48.KColor")
@@ -45,7 +45,7 @@ kColor {
 
 ## Add Colors
 In your shared module: shared>src>commonMain>resources>colors add “colors.xml”
-```
+``` xml
 <resources>
     <color name="primary">#FF9900</color>
     <color name="primary_two">#AAFF9900</color>
@@ -59,7 +59,7 @@ After adding color you can run your android app or run
 Verify generated colors file at shared>build>generated>colors>KColor.kt
 You can then simply use this color in your composable like this
 
-```
+``` kotlin
 @Composable
 fun GreetingView(text: String) {
     Text(text = text, color = KColor.primaryThree)
@@ -75,7 +75,7 @@ Once you have already run your Android app, open iosApp.xcodeproj. On your “io
 select iosApp Target> Build Setting, Change the value of “Generate Swift Asset Symbol Extensions” to “yes”
 And use it in your swift
 
-```
+``` swift
 struct ContentView: View {
  let greet = Greeting().greet()
 
@@ -92,7 +92,7 @@ If you want to set color from your ViewModels you can use generated KColorRes to
 
 In shared module build.gradle
 
-```
+``` groovy
 plugins {
     //other plugins
     id("io.github.mohitsoni48.KColor")
@@ -126,7 +126,7 @@ kColor {
 
 In shared ViewModel
 
-```
+``` kotlin
 class ColorStateViewModel: ViewModel() {
     val colorState: MutableStateFlow<KColorRes> = MutableStateFlow(KColorRes.primary)
     //.....
@@ -139,21 +139,21 @@ class ColorStateViewModel: ViewModel() {
 and to use in Android and iOS you can use ```getColor()``` method which return ```Color``` from Jertpack compose in AndroidMain and ```UIColor``` in iOSMain
 
 ### In Android
-```
+``` kotlin
 Text(text = text, color = getColor(colorState.value))
 ```
 
 ### In iOS
 Since in iOS kotlin has interop with Objective-C and not Swift, we get UIColor which you have to convert to ```Color``` in swift so you can create an extention func in swift
 
-```
+``` swift
 func getColor(kColorRes: KColorRes) -> Color {
     return Color(GetColorKt.getColor(kColorRes: kColorRes))
 }
 ```
 
 and use it like
-```
+``` kotlin
 Text(greet)
     .foregroundColor(getColor(kColorRes: colorState.value))
 ```
