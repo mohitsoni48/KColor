@@ -21,7 +21,7 @@ mavenPublishing {
     coordinates(
         groupId = "io.github.mohitsoni48",
         artifactId = "KColor",
-        version = "1.0.2"
+        version = "1.0.3"
     )
 
     // Configure POM metadata for the published artifact
@@ -50,6 +50,8 @@ mavenPublishing {
         // Specify SCM information
         scm {
             url.set("https://github.com/mohitsoni48/KColor")
+            developerConnection.set("scm:git:ssh://github.com/mohitsoni48/KColor.git")
+            connection.set("scm:git:git://github.com/mohitsoni48/KColor.git")
         }
     }
 
