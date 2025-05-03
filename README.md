@@ -1,6 +1,6 @@
 # KColor
 
-![Maven Central](https://img.shields.io/badge/Maven_Central-1.0.2-blue)
+![Maven Central](https://img.shields.io/badge/Maven_Central-1.0.3-blue)
 
 This is a Kotlin multiplatform library for sharing color between android and iOS.
 
